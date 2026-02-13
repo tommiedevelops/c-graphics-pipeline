@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "asset_manager/texture.h"
+#include "renderer/texture.h"
 #include "asset_manager/mesh.h"
 #include "asset_manager/material.h"
 

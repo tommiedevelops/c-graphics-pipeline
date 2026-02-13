@@ -19,7 +19,7 @@ bool quat_are_about_equal(Quat q0, Quat q1, float epsilon);
 bool quat_are_equal(Quat q0, Quat q1);
 
 Quat quat_slerp(Quat q, Quat p, float t);
-Quat quat_angle_axis(float angle, Vec3f axis); 
+Quat quat_angle_axis(float angle, Vec3f axis); // radians
 Quat quat_mul(Quat q0, Quat q1);
 Quat quat_conjugate(Quat q);
 Quat quat_normalize(Quat q);

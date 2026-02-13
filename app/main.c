@@ -25,7 +25,7 @@ void on_init(App* app, void* game_data) {
 	Pipeline* p_wall = pipeline_create(vs_default, fs_lit);
 
 	Vec4f col = (Vec4f){1.0f,0.0f,1.0f,1.0f};
-	Material* m_wall = material_create(col, NULL, p_wall);
+	Material* m_wall = material_create(col, tex, p_wall);
 	assets_add_material(app->assets, m_wall, "floor");
 }
 
@@ -68,10 +68,12 @@ void on_start(App* app, void* game_data) {
 	Mesh *mesh = assets_get_mesh(app->assets, "plane");
 	Material *mat = assets_get_material(app->assets, "floor");
 
-	Quat rot = QUAT_IDENTITY;
-	GameObj* floor = game_obj_create(transform_create(VEC3F_0, rot, VEC3F_1),
-					mesh,
-					mat);
+	Quat rot = quat_angle_axis(-3.14/2, VEC3F_X);
+	GameObj* floor = game_obj_create
+		         (
+				transform_create(VEC3F_0, rot, VEC3F_1),
+				mesh, mat
+			 );
 
 	scene_add_game_obj(app->scene, floor, "wall");
 }

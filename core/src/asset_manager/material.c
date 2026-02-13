@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "asset_manager/texture.h"
+#include "renderer/texture.h"
 #include "game_math/vector.h"
 #include "renderer/frag_shader.h"
 #include "renderer/vert_shader.h"
