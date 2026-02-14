@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "game_math/vector.h"
 #include "texture.h"
+#include "error_log.h"
 
 Texture* texture_create(int width, int height)
 {
@@ -12,6 +13,30 @@ Texture* texture_create(int width, int height)
 	tex->height = height;
 	tex->map    = map;
 }
+
+void texture_set_map_value(Texture* tex, int x, int y, Vec4f value)
+{
+	if(!tex) 
+	{
+		LOG_ERROR("Texture was null");
+		return;
+	}
+
+	if(x < 0 || x > tex->width)
+	{
+		LOG_ERROR("x value was invalid");
+		return;
+	}
+
+	if(y < 0 || y > tex->height)
+	{
+		LOG_ERROR("y value was invalid");
+		return;
+	}
+
+	tex->map[y * tex->width + x] = value;
+}
+
 
 void texture_destroy(Texture* tex){
 	if(!tex) return;

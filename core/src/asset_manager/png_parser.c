@@ -12,14 +12,8 @@ Texture* png_load(char* filename)
 
 	if(NULL == img) return NULL;
 
-	Vec4f* map = malloc(sizeof(Vec4f)*width*height);
-	memset(map, 0x0, sizeof(Vec4f)*width*height);
-
-	Texture* tex = malloc(sizeof(Texture));
-	tex->width = width;
-	tex->height = height;
-	tex->map = map;
-
+	Texture* tex = texture_create(width, height);
+	
 	for(int i = 0; i < width;  i++)
 	for(int j = 0; j < height; j++)
 	{
@@ -32,7 +26,7 @@ Texture* png_load(char* filename)
 			.w = (float)img[index + 3] / 255.0f
 		};
 		
-		map[j * width + i] = col_rgb;
+		texture_set_map_value(tex, i, j, col_rgb);
 	}
 	
 	stbi_image_free(img);
