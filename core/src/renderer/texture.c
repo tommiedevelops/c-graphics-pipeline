@@ -3,6 +3,12 @@
 #include "texture.h"
 #include "error_log.h"
 
+typedef struct Texture {
+	int width;
+	int height;
+	Vec4f* map;
+} Texture;
+
 Texture* texture_create(int width, int height)
 {
 	int map_size = width * height;
