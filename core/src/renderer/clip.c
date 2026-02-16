@@ -43,18 +43,14 @@ static const Plane4 kClipPlanes[] = {
 
 };
 
-static void compute_intersection(VSout s, VSout e, VSout* i, float t) {
+static void compute_intersection(VSout s, VSout e, VSout* i, float t) 
+{
 	// assumes memory at &i already allocated
-	if(!i){
-		LOG_ERROR("param was null");
-		return;
-	}
-
-	i->pos = lerp_vec4f(s.pos, e.pos, t);
+	i->pos       = lerp_vec4f(s.pos, e.pos, t);
 	i->world_pos = lerp_vec3f(s.world_pos, e.world_pos, t);
-	i->normal = lerp_vec3f(s.normal, e.normal, t);
+	i->normal    = lerp_vec3f(s.normal, e.normal, t);
 	i->uv_over_w = lerp_vec2f(s.uv_over_w, e.uv_over_w, t);
-	i->w_inv = lerp_float(s.w_inv, e.w_inv, t);
+	i->w_inv     = lerp_float(s.w_inv, e.w_inv, t);
 }
 
 static inline void write_vert_to_out(VSout* v, VSout* out, int* out_n_ptr)
@@ -73,20 +69,17 @@ static inline void write_itx_to_out(Plane4* P, VSout* s, VSout* e, VSout* out,
 /// Implements the conditional checks in Sutherland Hodgman for a single
 /// pair of vertices.
 /// See: https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-static void clip_edge(VSout s, VSout e, Plane4 P, VSout* out, int* out_n) {
+static void clip_edge(VSout s, VSout e, Plane4 P, VSout* out, int* out_n) 
+{
 
 	bool s_inside = plane4_inside(P,s.pos);
 	bool e_inside = plane4_inside(P,e.pos); 
 
 	if(s_inside && e_inside) 
-	{
 		write_vert_to_out(&e, out, out_n);
-	}
 
 	if(s_inside && !e_inside) 
-	{
 		write_itx_to_out(&P,&s,&e,out,out_n);
-	}
 
 	if(!s_inside && e_inside) 
 	{
@@ -109,47 +102,37 @@ static void clip_against_plane(const Plane4 P,
 	}
 }
 
-static inline void swap_ptrs(void** a, void** b) {
+static inline void swap_ptrs(void** a, void** b) 
+{
 	void* temp = *a;
 	*a = *b;
 	*b = temp;
 }
 
-void clip_tri_against_clip_planes(const VSout in[3], VSout* out, int* out_n) {
-
+void clip_tri_against_clip_planes(const VSout in[3], VSout out[16], int* out_n) 
+{
 	VSout bufA[16], bufB[16];
-
 	int sizeA = 3, sizeB = 0;
 
-	// Pointers to current input and output buffers & respective sizes
 	VSout* in_ptr = bufA;
 	VSout* out_ptr = bufB;
 	int* in_size_ptr = &sizeA;
 	int* out_size_ptr = &sizeB;
 
-	VSout* final_out = bufB;
-	int* final_size = &sizeB;
-
 	for(int i = 0; i < 3; i++) bufA[i] = in[i];
 	
-	for(int i = 0; i < 6; i++){
+	for(int i = 0; i < 6; i++)
+	{
 		clip_against_plane(kClipPlanes[i], 
 				   in_ptr, *in_size_ptr,
 			       	   out_ptr, out_size_ptr);
 
 		swap_ptrs((void*)&in_ptr,(void*)&out_ptr);
 		swap_ptrs((void*)&in_size_ptr, (void*)&out_size_ptr);
-
-		// The final output is given by the buffer and size we just 
-		// outputted to 
-
-		final_out = (final_out == bufB) ? bufA : bufB;
-		final_size = (final_size == &sizeB) 
-			      ?  &sizeA : &sizeB;
 	}
 
-	for(int i = 0; i < *final_size; i++) out[i] = final_out[i];
-	*out_n = *final_size;
+	for(int i = 0; i < sizeB; i++) out[i] = bufB[i];
+	*out_n = sizeB;
 }
 
 
