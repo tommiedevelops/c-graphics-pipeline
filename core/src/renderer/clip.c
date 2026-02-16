@@ -115,7 +115,7 @@ static inline void swap_ptrs(void** a, void** b) {
 	*b = temp;
 }
 
-int clip(const VSout in[3], VSout* out) {
+void clip_tri_against_clip_planes(const VSout in[3], VSout* out, int* out_n) {
 
 	VSout bufA[16], bufB[16];
 
@@ -149,8 +149,7 @@ int clip(const VSout in[3], VSout* out) {
 	}
 
 	for(int i = 0; i < *final_size; i++) out[i] = final_out[i];
-
-	return *final_size;
+	*out_n = *final_size;
 }
 
 

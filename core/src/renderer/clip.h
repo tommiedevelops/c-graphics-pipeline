@@ -3,6 +3,6 @@
 
 #include "vert_shader.h"
 
-int clip(const VSout in[3], VSout* out);
+void clip_tri_against_clip_planes(const VSout in[3], VSout* out, int* out_n);
 
 #endif

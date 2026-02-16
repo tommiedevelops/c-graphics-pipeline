@@ -92,24 +92,27 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 	const Pipeline* p     = mat_p ? mat_p : r->p; 
 
 	// input and output of the vertex shader
-	VSin  in[3];
-	VSout out[3];
+	VSin  vs_in[3];
+	VSout vs_out[3];
 
-	assemble_triangle_inputs(mesh, tri_idx, in);
+	assemble_triangle_inputs(mesh, tri_idx, vs_in);
 
 	for(int i = 0; i < 3; i++) 
 	{
-		p->vs(&in[i], &out[i], r->vs_u); // apply vertex shader
+		p->vs(&vs_in[i], &vs_out[i], r->vs_u); // apply vertex shader
 		// save perspective correct interpolation values
-		out[i].w_inv = 1.0f/out[i].pos.w;
-		out[i].uv_over_w = vec2f_scale(out[i].uv, out[i].w_inv);
+		vs_out[i].w_inv = 1.0f/vs_out[i].pos.w;
+		vs_out[i].uv_over_w = vec2f_scale(vs_out[i].uv, 
+						  vs_out[i].w_inv);
 	}
 
-	VSout clip_out[9] = {0};
-	int out_n = clip(out, clip_out); 
+	VSout clip_out[16] = {0};
+	int clip_out_n = 0;
+
+	clip_tri_against_clip_planes(vs_out, clip_out, &clip_out_n); 
 
 	Mat4 vp = r->vs_u->viewport;
-	for(int i = 0; i < out_n; i++) 
+	for(int i = 0; i < clip_out_n; i++) 
 	{
 		float w_inv = clip_out[i].w_inv;
 		clip_out[i].pos.x *= w_inv;
@@ -119,7 +122,7 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 		clip_out[i].pos = mat4_mul_vec4(vp, clip_out[i].pos);
 	}	
 
-	int num_tris = out_n < 2 ? 0: out_n - 2;
+	int num_tris = clip_out_n < 2 ? 0: clip_out_n - 2;
 
 	Triangle tri;
 	tri.v[0] = &clip_out[0];
