@@ -21,36 +21,37 @@
 #include "scene_manager/scene.h"
 #include "scene_manager/transform.h"
 
-Renderer* renderer_create(Pipeline* default_pl) {
-	Renderer* r = malloc(sizeof(Renderer));
+Renderer* renderer_create(Pipeline* default_pl) 
+{
+	Renderer*   r    = malloc(sizeof(Renderer));
 	VSUniforms* vs_u = malloc(sizeof(VSUniforms));
 	FSUniforms* fs_u = malloc(sizeof(FSUniforms));
-	r->p = default_pl;	
+	r->p    = default_pl;	
 	r->vs_u = vs_u;
 	r->fs_u = fs_u;
 	return r;
 }
 
-void renderer_destroy(Renderer* r) {
+void renderer_destroy(Renderer* r) 
+{
 	if(!r) return;
 	free(r->vs_u);
 	free(r->fs_u);
 	free(r);
 }
 
-Pipeline* pipeline_create(VertShaderF vert_shader, FragShaderF frag_shader) {
+Pipeline* pipeline_create(VertShaderF vert_shader, FragShaderF frag_shader) 
+{
 	Pipeline* p = malloc(sizeof(Pipeline));
 	p->vs = vert_shader;
 	p->fs = frag_shader;
 	return p;
 }
 
-void pipeline_destroy(Pipeline* p) {
-	free(p);
-}
+void pipeline_destroy(Pipeline* p) { free(p); }
 
-static void assemble_triangle_inputs(const Mesh* const mesh, int tri_idx, 
-				     VSin in[3]) 
+static void assemble_triangle_inputs(const Mesh* const mesh, 
+			                          int tri_idx, VSin in[3]) 
 {
 	for(int i = 0; i < 3; i++)
 	{
@@ -79,8 +80,8 @@ static void assemble_triangle_inputs(const Mesh* const mesh, int tri_idx,
 			  :  VEC3F_0;
 		
 		in[i].pos = pos;
-		in[i].n = n;
-		in[i].uv = uv;
+		in[i].n   = n;
+		in[i].uv  = uv;
 	}
 }
 
@@ -102,10 +103,10 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 		p->vs(&vs_in[i], &vs_out[i], r->vs_u); // apply vertex shader
 		// save perspective correct interpolation values
 		vs_out[i].w_inv = 1.0f/vs_out[i].pos.w;
-		vs_out[i].uv_over_w = vec2f_scale(vs_out[i].uv, 
-						  vs_out[i].w_inv);
+		vs_out[i].uv_over_w = vec2f_scale(vs_out[i].uv, vs_out[i].w_inv);
 	}
 
+	// size 16 to ensure enough space for more verts after clip
 	VSout clip_out[16] = {0};
 	int clip_out_n = 0;
 
@@ -115,10 +116,7 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 	for(int i = 0; i < clip_out_n; i++) 
 	{
 		float w_inv = clip_out[i].w_inv;
-		clip_out[i].pos.x *= w_inv;
-		clip_out[i].pos.y *= w_inv;
-		clip_out[i].pos.z *= w_inv;
-		clip_out[i].pos.w = 1.0f;
+		clip_out[i].pos = vec4f_scale(clip_out[i].pos, w_inv);
 		clip_out[i].pos = mat4_mul_vec4(vp, clip_out[i].pos);
 	}	
 
@@ -131,7 +129,6 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 	{	
 		tri.v[1] = &clip_out[k+1];
 		tri.v[2] = &clip_out[k+2];
-
 		rasterize_triangle(r,fb,&tri,p->fs);
 	}
 }

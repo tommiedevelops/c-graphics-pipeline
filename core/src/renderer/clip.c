@@ -1,41 +1,38 @@
-/// -------------------------------------------------------------
-/// Implements Sutherland-Hodgman clipping algorithm to clip
-/// vertices against the canonical view volume (Vulkan)
-/// 
-/// See: https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-/// for pseudocode
-///
-/// Assumes vertices are in homogeneous clip space (see render.c)
-/// -------------------------------------------------------------
-
 #include <string.h>
 #include <stdlib.h>
+
 #include "game_math/lerp.h"
 #include "game_math/plane.h"
 #include "renderer/vert_shader.h"
 #include "error_log.h"
 
 static const Plane4 kClipPlanes[] = {
+
 	{ // top (y = w)
           .n = {0.0f, -1.0f, 0.0f, 1.0f},
 	  .p = {0.0f,  1.0f, 0.0f, 1.0f}
 	}, 
+
 	{ // bottom (y = -w)
 	  .n = {0.0f,  1.0f, 0.0f, 1.0f},
 	  .p = {0.0f, -1.0f, 0.0f, 1.0f}
 	},
+
 	{ // left ( x = -w )
 	  .n = { 1.0f, 0.0f, 0.0f, 1.0f},
 	  .p = {-1.0f, 0.0f, 0.0f, 1.0f}
 	},
+
 	{ // right ( x = -w )
 	  .n = {-1.0f, 0.0f, 0.0f, 1.0f},
 	  .p = {1.0f,  0.0f, 0.0f, 1.0f}
 	},
+
 	{ // near ( z = 0 )
 	  .n = {0.0f, 0.0f, 1.0f, 0.0f},
 	  .p = {0.0f, 0.0f, 0.0f, 0.0f}
 	}, 
+
 	{ // far ( z = w )
 	  .n = {0.0f, 0.0f, -1.0f, 1.0f},
 	  .p = {0.0f, 0.0f, 1.0f, 1.0f}
