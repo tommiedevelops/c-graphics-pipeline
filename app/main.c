@@ -106,6 +106,9 @@ static void handle_movement(Transform* cam_tr, GameData* gd, float dt) {
 	if(kb[SDL_SCANCODE_A]) gd->move_input.y -= 1.0f;
 	if(kb[SDL_SCANCODE_S]) gd->move_input.x -= 1.0f;
 	if(kb[SDL_SCANCODE_D]) gd->move_input.y += 1.0f; 
+	if(kb[SDL_SCANCODE_Q]) cam_tr->position.y -= dt*1.0f;
+	if(kb[SDL_SCANCODE_E]) cam_tr->position.y += dt*1.0f;
+
 
 	float horiz_sens = 0.5f;
 
