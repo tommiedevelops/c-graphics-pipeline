@@ -19,11 +19,14 @@ void print_vsout(VSout* vs) {
 	print_vec4f(vs->pos);
 	printf("sceen pos: ");
 	print_vec2f((Vec2f){vs->pos.x/vs->pos.w, vs->pos.y/vs->pos.w});
-	print_vec4f(vs->pos);
 	printf("world_pos: ");
 	print_vec3f(vs->world_pos);
 	printf("normal: ");
 	print_vec3f(vs->normal);
 	printf("uv: ");
 	print_vec2f(vs->uv);
+	printf("uv_over_w:");
+	print_vec2f(vs->uv_over_w);
+	printf("w_inv:");
+	printf("%f\n",vs->w_inv);
 }

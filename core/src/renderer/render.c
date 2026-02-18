@@ -85,6 +85,28 @@ static void assemble_triangle_inputs(const Mesh* const mesh,
 	}
 }
 
+static void ensure_ccw(Triangle* tri)
+{
+	VSout** v = tri->v;
+
+	//check ccw
+	Vec3f a = (Vec3f){v[0]->pos.x, v[0]->pos.y, 0.0f};
+	Vec3f b = (Vec3f){v[1]->pos.x, v[1]->pos.y, 0.0f};
+	Vec3f c = (Vec3f){v[2]->pos.x, v[2]->pos.y, 0.0f};
+
+	Vec3f x = vec3f_sub(a,b);
+	Vec3f y = vec3f_sub(a,c);
+
+	Vec3f cross = vec3f_cross(x,y);
+
+	if(cross.z > 0) //ccw
+		return;
+
+	VSout* temp = tri->v[1];
+	tri->v[1] = tri->v[2];
+	tri->v[2] = temp;
+}
+
 static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,  
 		          Material* mat, int tri_idx) 
 {
@@ -117,20 +139,35 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 	Mat4 vp = r->vs_u->viewport;
 	for(int i = 0; i < clip_out_n; i++) 
 	{
-		float w_inv = clip_out[i].w_inv;
-		clip_out[i].pos = vec4f_scale(clip_out[i].pos, w_inv);
-		clip_out[i].pos = mat4_mul_vec4(vp, clip_out[i].pos);
+		VSout* vert = &clip_out[i];
+		vert->pos = vec4f_scale(vert->pos, vert->w_inv);
+		vert->pos = mat4_mul_vec4(vp, vert->pos);
 	}	
 
 	int num_tris = clip_out_n < 2 ? 0: clip_out_n - 2;
 
 	Triangle tri;
+
+#define DEBUG
+#ifdef DEBUG
+	printf("triangle %d\n", tri_idx);
+#endif
+
 	tri.v[0] = &clip_out[0];
 
 	for(int k = 0; k < num_tris; k++) 
 	{	
 		tri.v[1] = &clip_out[k+1];
 		tri.v[2] = &clip_out[k+2];
+		ensure_ccw(&tri);
+#ifdef  DEBUG
+	for(int i = 0; i < 3; ++i) 
+	{
+		print_vsout(tri.v[i]);
+		printf("\n");
+	}
+	printf("\n");
+#endif
 		rasterize_triangle(r,fb,&tri,p->fs);
 	}
 }
