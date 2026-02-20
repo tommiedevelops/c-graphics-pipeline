@@ -16,11 +16,11 @@ Vec2i vec2i_sub(Vec2i a, Vec2i b)
 
 void rasterize_pixel(Vec2i P,BaryCoords b, FSin* out, VSout* v[3]) 
 {
-	// Depth (Screen Space Z)
-	float depth = bary_mix1(b, v[0]->pos.z, v[1]->pos.z, v[2]->pos.z);	
 
 	// Perspective Correct Attributes
 	float w_inv = bary_mix1(b, v[0]->w_inv, v[1]->w_inv, v[2]->w_inv);
+
+	float depth = 1.0f/w_inv;
 
 	Vec2f uv_over_w = bary_mix2( b
 			           , v[0]->uv_over_w

@@ -130,6 +130,16 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 						 );
 	}
 
+#ifdef  DEBUG
+	printf("original triangle %d\n", tri_idx);
+	for(int i = 0; i < 3; ++i) 
+	{
+		print_vsout(&vs_out[i]);
+		printf("\n");
+	}
+	printf("\n");
+
+#endif
 	// size 16 to ensure enough space for more verts after clip
 	VSout clip_out[16] = {0};
 	int clip_out_n = 0;
@@ -148,9 +158,8 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 
 	Triangle tri;
 
-#define DEBUG
 #ifdef DEBUG
-	printf("triangle %d\n", tri_idx);
+	printf("clipped triangle %d\n", tri_idx);
 #endif
 
 	tri.v[0] = &clip_out[0];
@@ -226,6 +235,9 @@ void renderer_draw_scene(Renderer* r, FrameBuffer* fb, Scene* scene)
 	const size_t count = scene_get_num_gos(scene);
 	GameObj** gos = scene_get_game_obj_arr(scene);
 
+#ifdef DEBUG
+printf("frame\n");
+#endif
 	for(size_t i = 0; i < count; i++) 
 	{
 		GameObj* go = gos[i];
