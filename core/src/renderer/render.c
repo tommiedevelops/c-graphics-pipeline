@@ -125,9 +125,14 @@ static void draw_triangle(Renderer* r, FrameBuffer* fb, Mesh* mesh,
 		p->vs(&vs_in[i], &vs_out[i], r->vs_u); // apply vertex shader
 		// save perspective correct interpolation values
 		vs_out[i].w_inv = 1.0f/vs_out[i].pos.w;
-		vs_out[i].uv_over_w = vec2f_scale( vs_out[i].uv
-				                 , vs_out[i].w_inv
-						 );
+
+		vs_out[i].uv_over_w = vec2f_scale( vs_out[i].uv,
+			       		           vs_out[i].w_inv
+			              );
+
+		vs_out[i].n_over_w = vec3f_scale( vs_out[i].normal,
+						  vs_out[i].w_inv
+				     );
 	}
 
 #ifdef  DEBUG

@@ -17,6 +17,7 @@ typedef struct VSout {
 	Vec2f uv;
 	float w_inv;
 	Vec2f uv_over_w;
+	Vec3f n_over_w;
 } VSout;
 
 typedef struct {

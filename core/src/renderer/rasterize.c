@@ -20,18 +20,23 @@ void rasterize_pixel(Vec2i P,BaryCoords b, FSin* out, VSout* v[3])
 	// Perspective Correct Attributes
 	float w_inv = bary_mix1(b, v[0]->w_inv, v[1]->w_inv, v[2]->w_inv);
 
-	float depth = 1.0f/w_inv;
+	float w = 1.0f/w_inv;
 
 	Vec2f uv_over_w = bary_mix2( b
 			           , v[0]->uv_over_w
 				   , v[1]->uv_over_w
 				   , v[2]->uv_over_w
-				   );
+		          );
 
-	Vec2f uv = vec2f_scale(uv_over_w, 1.0f/w_inv);
+	Vec2f uv = vec2f_scale(uv_over_w, w);
 
-	Vec3f normal = bary_mix3(b,v[0]->normal,v[1]->normal, v[2]->normal);
-	normal = vec3f_normalize(normal);
+	Vec3f n_over_w = bary_mix3( b
+				, v[0]->n_over_w
+				, v[1]->n_over_w
+				, v[2]->n_over_w
+		       );
+	
+	Vec3f normal = vec3f_normalize(vec3f_scale(n_over_w, w));
 
 	Vec3f world_pos = bary_mix3( b
 				   , v[0]->world_pos
@@ -43,7 +48,7 @@ void rasterize_pixel(Vec2i P,BaryCoords b, FSin* out, VSout* v[3])
 		.world_pos = world_pos,
 		.normal   = normal,
 		.uv       = uv,	
-		.depth    = depth
+		.depth    = w
 	};
 
 }
