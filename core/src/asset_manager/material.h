@@ -13,6 +13,7 @@ typedef struct Material {
 	Vec4f specular;
 	Pipeline* pipeline;
 	const char* handle;
+	bool cull_backface;
 } Material;
 
 Material* material_default(); 

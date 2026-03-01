@@ -61,11 +61,6 @@ static inline int edge_func(Vec2i P, Vec2i A, Vec2i B)
 	return (B.x - A.x)*(P.y - A.y) - (B.y - A.y)*(P.x - A.x);
 }
 
-static inline bool inside_triangle(int e01, int e12, int e20) 
-{
-	return (e01 >= 0) && (e12 >= 0) && (e20 >= 0);
-}
-
 static inline Vec2i to_pixel_center(Vec4f p) 
 {
 	return (Vec2i){ (int)floorf(p.x + 0.5f), (int)floorf(p.y + 0.5f) };
@@ -121,15 +116,30 @@ void rasterize_triangle( Renderer* r
 	EdgeStepper e12 = make_edge(P, V1, V2);
 	EdgeStepper e20 = make_edge(P, V2, V0);
 
+	bool cull_backface = r->fs_u->cull_backface;
+
 	for(P.y = box.ymin; P.y <= box.ymax; P.y++)
 	{
 		int e01_xy = e01.e_row;		
 		int e12_xy = e12.e_row;
 		int e20_xy = e20.e_row;
-			
+		
 		for(P.x = box.xmin; P.x <= box.xmax; P.x++)
 		{
-			if(inside_triangle(e01_xy,e12_xy,e20_xy)) 
+
+			bool condition =  e01_xy > 0 
+				       && e12_xy > 0 
+				       && e20_xy > 0;
+
+			if(!cull_backface) 
+			{
+				condition = condition 
+					  || e01_xy < 0 
+					  && e12_xy < 0
+					  && e20_xy < 0;
+			}
+
+			if(condition)
 			{
 				BaryCoords b = {e12_xy, e20_xy, e01_xy};
 				rasterize_pixel(P,b,&fs_in,tri->v);

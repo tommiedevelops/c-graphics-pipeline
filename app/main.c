@@ -37,7 +37,7 @@ void on_init(App* app, void* game_data) {
 	/* for preparing Assets */
 
 	// plane mesh
-	Mesh* plane_mesh = mesh_parse_from_obj("assets/models/bunny.obj");
+	Mesh* plane_mesh = mesh_parse_from_obj("assets/models/fold.obj");
 	assets_add_mesh(app->assets, plane_mesh, "plane");
 	mesh_recalculate_normals(plane_mesh);
 
@@ -47,6 +47,7 @@ void on_init(App* app, void* game_data) {
 
 	Vec4f col = (Vec4f){1.0f,0.0f,1.0f,1.0f};
 	Material* m_wall = material_create(col, NULL, p_wall);
+	m_wall->cull_backface = false; // turn off backface culling
 	assets_add_material(app->assets, m_wall, "floor");
 }
 #endif
@@ -102,7 +103,7 @@ void on_start(App* app, void* game_data) {
 				mesh, mat
 			 );
 
-	scene_add_game_obj(app->scene, floor, "wall");
+	scene_add_game_obj(app->scene, floor, "plane");
 }
 
 void on_event(App* app, void* game_data, SDL_Event* e) {
@@ -173,7 +174,7 @@ static void rotate_camera(Camera* cam, float dt) {
 	transform_apply_rotation(tr,rot);
 }
 
-static void rotate_bunny(GameObj* go, float dt) {
+static void rotate_go(GameObj* go, float dt) {
 	float ang_vel = 2.0f;
 	Transform* tr = go->tr;
 	float angle = dt * ang_vel;
@@ -197,6 +198,9 @@ void on_update(App* app, void* game_data, float dt) {
 
 	Scene* scene = app->scene;
 	Camera* cam = scene_get_camera(scene);
+
+	GameObj* go = scene_get_game_obj(scene, "plane");
+	rotate_go(go, dt);
 
 	handle_movement(cam->transform, gd, dt);
 }
