@@ -6,6 +6,8 @@
 \usepackage{subcaption} %for subfigures
 \usepackage{amsmath,amssymb,bm}
 \usepackage{tikz}
+\usepackage{hyperref}
+\usepackage{minted}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
@@ -20,8 +22,8 @@
 \newcommand{\uvect}[1]{\hat{\bm{#1}}} % unit vectors: \uvect{n}
 
 % METADATA %
-\author{Thomas Dizon}
-\title{CPU Graphics Engine}
+\author{Thomas Dizon (@tommiedevelops)}
+\title{The 3D Graphics Pipeline, in Pure C}
 
 % CONTENT %
 \begin{document}
@@ -49,10 +51,10 @@
 \item It's also a great precursor to understanding more in depth how the GPU works.
 \end{itemize}
 
-\subsection{What is a \textit{Graphics Engine}?}
+\subsection{The scope of a \textit{Graphics Engine}}
 \begin{itemize}
 \item The rasterization step in the graphics render pipline is a specific part which involves converting Primitives into Fragments
-\item A primitive, in my case, is a Triangle and a Fragment is an (x,y) value on the screen with an additional z value to track its depth
+\item A Primitive, in my case, is a Triangle and a Fragment is an (x,y) value on the screen with an additional z value to track its depth
 \item In the real world, rasterization is done purely through specialized hardware on the GPU (which is why it is so fast)
 \item To conceptually understand how it works, instead of building a GPU from scratch (hard), I'll use my good old CPU to do the rasterizing (still hard but easier)
 \item Just to clarify between similar terms. A ``Software Rasterizer'' refers to writing a CPU implementation of the Rasterization step in a ``Software Renderer''. A ``Software Renderer'' is a CPU implementaion of the Graphics Pipeline. A ``Graphics Engine'' is a CPU implementation of the graphics pipeline as well as Scene Management, Asset Management, Input handling, Updating the Scene etc. It falls short of being a fully fledged game engine but the scope is larger than a Software Renderer
@@ -60,39 +62,41 @@
 
 \subsection{Why \textit{C}?}
 \begin{itemize}
-\item I first touched C during my Systems Programming course at University. It was extrememly difficult for me at the time but very benefiical for my programming skills. I felt that I haven't extracted all that I can from the language yet.
-\item Also, I wanted to get as low level as possible for this project to ensure I had minimal dependencies. To truly understand the Graphics Pipeline, I wanted to build it truly (well, mostly) from scratch
+\item  C is an extremely tedious language to program in as it lacks many modern features like Object Oriented Programming which makes scaling a program much easier and less time consuming. 
+\item While I generally would not reccomend programming in C for serious applications, it is a great tool to maintain a precise mental model of your code as you are maanging every bit of memory manually. 
+\item My rule of thumb is, if you want to undertand how X works, you should implement a basic version of X in C as it forces you to understand every detail of how it works.
+\item Then, for a serious implementation of X, you should use a higher level language like C++ or C\# so it takes you far less time.
+\item As such, I have developed this project in C to gain a deep understanding of the workings of graphics systems so that I may use this knowledge in my future higher level projects.
 \end{itemize}
 
 \subsection{What does the project depend on?}
 \begin{itemize}
-\item Right now, it depends on the C standard library, std\_image.h (reference) for dealing with.png files and SDL2 (reference) for handling all the OS level stuff like inputs and writing to the screen. Though you could easily replace SDL with any other library which creates Windows for you like RayLib.
+\item Right now, it depends on the C standard library, \href{https://github.com/nothings/stb/blob/master/stb_image.h}{std\_image.h} for dealing with .png files and \href{https://www.libsdl.org/}{SDL2}  for handling all the OS level stuff like inputs and writing to the screen. Though you could easily replace SDL with any other library which creates Windows for you like RayLib.
 \end{itemize}
 
-\section{The Graphics Engine}
+\section{System Design}
 \subsection{Diagram}
+
 \subsection{Overview}
 \begin{itemize}
-\item{Preparing Assets for the Scene}
-\item{Preparing the Scene}
-\item{Updating the Scene}
-\item{Primitive Assembly}
-\item{Vertex Shader}
-\item{Clipping \& Viewport}
-\item{Rasterization}
-\item{Fragment Shader}
-\item{Output Merging \& Depth Test}
+	\item Scene Manager
+	\item Asset Manager
+	\item Renderer
+	\item Game Math
+	\item Application
+	\item Platform
+	\item Third Party
 \end{itemize}
 
 \section{3D Geometry in Memory}
 
-\subsection{How do you represent a 3D object on a computer?}
-\subsection{Vertices and Triangles}
 \begin{itemize}
-\item Using a Mesh
+	\item In computer memory, 3D objects are represented as a collection of vertices and triangles. A vertex is a point in 3D space defined by its x, y and z coordinates. A triangle is a primitive that consists of three vertices and represents a flat surface in 3D space. By connecting multiple triangles together, we can create complex 3D shapes and models. This method of representing 3D geometry is efficient and widely used in computer graphics, allowing for the creation of detailed and realistic virtual environments.
+
+	\item In this project, I store 3D objects as  \href{https://en.wikipedia.org/wiki/Wavefront_.obj_file}{Wavefront .obj files}.  
+	\item I have a dedicated .obj parser which converts a .obj file into a 3D Mesh in program memory.
+	\item 
 \end{itemize}
-\subsection{3D Mesh}
-\subsection{3D File types}
 
 \section{Coordinate Spaces}
 \subsection{What is a \textit{Coordinate Space}?}
